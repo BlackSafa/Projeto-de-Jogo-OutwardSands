@@ -5,11 +5,19 @@ using UnityEngine;
 public class InputManager : MonoBehaviour {
 
     public GameObject inputTarget;
+    bool isJoystick = false;
 
     void Update() {
         Vector2 dir = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        
-        inputTarget.GetComponent<IKeyboardInputs>().DirectionalInputs(dir);
+        if (isJoystick)
+        {
+            IJoystickInputs SecondaryInputs = inputTarget.GetComponent<IJoystickInputs>();
+        }
+        else
+        {
+            IKeyboardInputs BasicInputs = inputTarget.GetComponent<IKeyboardInputs>();
+            BasicInputs.DirectionalInputs(dir);
+        }
     }
 }
 

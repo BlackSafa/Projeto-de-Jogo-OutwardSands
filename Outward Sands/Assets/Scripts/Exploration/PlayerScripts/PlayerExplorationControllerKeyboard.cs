@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerExplorationControllerKeyboard : MonoBehaviour, IKeyboardInputs
 {
+    //Player Movement Variables
     [SerializeField] private CharacterController characterCtrl;
     [SerializeField] private Transform groundChecker;
     [SerializeField] private LayerMask groundLayer;
@@ -12,11 +13,15 @@ public class PlayerExplorationControllerKeyboard : MonoBehaviour, IKeyboardInput
     [SerializeField] private float gravityAcceleration = 10;
     [SerializeField] private bool isGrounded = false;
     [SerializeField] private Vector3 gravityVector;
-    [SerializeField] float modifier;
-    [SerializeField] bool modifierOn;
-
+    public float modifier;
+    public bool modifierOn;
     private RaycastHit over;
+
+    //Input Variables
     private Vector3 movementDir, inputs;
+
+    //Menu Variables
+    private RectTransform menu;
 
     public void DirectionalInputs(Vector2 dir) {
         
@@ -24,8 +29,6 @@ public class PlayerExplorationControllerKeyboard : MonoBehaviour, IKeyboardInput
         movementDir.x = 0;
         movementDir.z = 0;
         movementDir = movementDir + (inputs.normalized * speed);
-        
-
         //movementDir = new Vector3(dir.x, 0, dir.y) * speed;
     }
 
@@ -44,6 +47,8 @@ public class PlayerExplorationControllerKeyboard : MonoBehaviour, IKeyboardInput
 
     private void Movement(){
         //animator.SetFloat("Move", movementDir.magnetude);
+        modifier = modifierOn ? FindObjectOfType<cameraTripod>().transform.eulerAngles.y : 0;
+        modifier = Mathf.RoundToInt(modifier);
         if (inputs.normalized != Vector3.zero)
         {
             float targetRotation;
@@ -53,7 +58,9 @@ public class PlayerExplorationControllerKeyboard : MonoBehaviour, IKeyboardInput
                 targetRotation = Mathf.Atan2(inputs.x, inputs.z) * Mathf.Rad2Deg;
             transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref turningSpeed, turningTime);
         }
-        characterCtrl.Move(movementDir * speed * Time.deltaTime);
+        float hMov = movementDir.x * Mathf.Cos(modifier * Mathf.Deg2Rad) + movementDir.z * Mathf.Sin(modifier * Mathf.Deg2Rad);
+        float vMov = (movementDir.x * Mathf.Sin(modifier * Mathf.Deg2Rad)) * -1 + movementDir.z * Mathf.Cos(modifier * Mathf.Deg2Rad);
+        characterCtrl.Move(new Vector3(hMov, 0, vMov) * speed * Time.deltaTime);
     }
 
     private void Gravity() {
